@@ -30,7 +30,7 @@ class Project extends Model
                     ->withTimestamps();
     }
 
-    // ✅ Un projet a plusieurs tâches
+    //  Un projet a plusieurs tâches
     public function tasks()
     {
         return $this->hasMany(Task::class);
