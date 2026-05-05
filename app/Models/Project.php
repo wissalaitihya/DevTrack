@@ -16,7 +16,7 @@ class Project extends Model
         'deadline',
     ];
 
-    // ✅ BONUS — Mutator : stocke le titre en Ucfirst automatiquement
+    //  BONUS — Mutator : stocke le titre en Ucfirst automatiquement
     public function setTitleAttribute($value)
     {
         $this->attributes['title'] = ucfirst($value);
