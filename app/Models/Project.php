@@ -36,7 +36,7 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
-    //  Helper : retourne uniquement le lead du projet
+    // ✅ Helper : retourne uniquement le lead du projet
     public function lead()
     {
         return $this->members()
