@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    // ✅ Dashboard — liste des projets
+        // ✅ Dashboard — liste des projets
     public function index()
     {
         $projects = auth()->user()->projects()
