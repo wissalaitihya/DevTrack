@@ -1,36 +1,61 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevTrack</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body>
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    {{-- NAVBAR --}}
+    <nav class="navbar">
+        <a href="{{ route('projects.index') }}" class="navbar-brand">
+            🚀 DevTrack
+        </a>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <ul class="navbar-nav">
+            @auth
+                <li><a href="{{ route('projects.index') }}">Dashboard</a></li>
+                <li><a href="{{ route('projects.archives') }}">Archives</a></li>
+                <li>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-secondary btn-sm">
+                            Déconnexion
+                        </button>
+                    </form>
+                </li>
+            @endauth
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+            @guest
+                <li><a href="{{ route('login') }}">Connexion</a></li>
+                <li><a href="{{ route('register') }}">Inscription</a></li>
+            @endguest
+        </ul>
+    </nav>
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+    {{-- CONTENU --}}
+    <div class="container">
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-    </body>
+        {{-- Messages succès --}}
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Messages erreur --}}
+        @if(session('error'))
+            <div class="alert alert-error">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        {{-- Contenu de la page --}}
+        @yield('content')
+
+    </div>
+
+</body>
 </html>
