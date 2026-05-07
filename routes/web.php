@@ -11,7 +11,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
      //routes for projects
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-    Route::get('/projects/archived', [ProjectController::class, 'archived'])->name('projects.archived');
+    Route::get('/projects/archives', [ProjectController::class, 'archives'])->name('projects.archives');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
