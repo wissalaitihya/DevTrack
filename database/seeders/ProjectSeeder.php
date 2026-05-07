@@ -22,9 +22,9 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Attach members with roles
-        $project1->users()->attach($lead->id, ['role' => 'lead']);
-        $project1->users()->attach($dev1->id, ['role' => 'developer']);
-        $project1->users()->attach($dev2->id, ['role' => 'developer']);
+        $project1->members()->attach($lead->id, ['role' => 'lead']);
+        $project1->members()->attach($dev1->id, ['role' => 'developer']);
+        $project1->members()->attach($dev2->id, ['role' => 'developer']);
 
         // Project 2
         $project2 = Project::create([
@@ -34,7 +34,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Attach members with roles
-        $project2->users()->attach($lead->id, ['role' => 'lead']);
-        $project2->users()->attach($dev1->id, ['role' => 'developer']);
+        $project2->members()->attach($lead->id, ['role' => 'lead']);
+        $project2->members()->attach($dev1->id, ['role' => 'developer']);
     }
 }
