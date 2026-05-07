@@ -17,7 +17,7 @@
         <ul class="navbar-nav">
             @auth
                 <li><a href="{{ route('projects.index') }}">Dashboard</a></li>
-                <li><a href="{{ route('projects.archives') }}">Archives</a></li>
+                <li><a href="{{ route('projects.archived') }}">Archives</a></li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
