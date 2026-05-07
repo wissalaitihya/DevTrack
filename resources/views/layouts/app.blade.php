@@ -13,7 +13,7 @@
         <a href="{{ route('projects.index') }}" class="navbar-brand">
             🚀 DevTrack
         </a>
-
+//
         <ul class="navbar-nav">
             @auth
                 <li><a href="{{ route('projects.index') }}">Dashboard</a></li>
