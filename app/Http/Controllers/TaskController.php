@@ -54,13 +54,13 @@ class TaskController extends Controller
     }
 
     // ✅ Changer uniquement le statut (developer assigné)
-    public function updateStatus(UpdateTaskStatusRequest $request, Task $task)
+    public function updateStatus(UpdateTaskStatusRequest $request, Project $project, Task $task)
     {
         $this->authorize('updateStatus', $task);
 
         $task->update(['status' => $request->status]);
 
-        return redirect()->back()
+        return redirect()->route('projects.show', $project) 
                          ->with('success', 'Statut mis à jour !');
     }
 

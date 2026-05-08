@@ -44,10 +44,10 @@
                     @endcan
 
                     @can('archive', $project)
-                        <form action="{{ route('projects.archives', $project) }}" 
-                              method="POST">
-                            @csrf
-                            @method('PATCH')
+                        <form action="{{ route('projects.destroy', $project) }}" method="POST"
+                         onsubmit="return confirm('Archiver ce projet ?')">
+                           @csrf
+                           @method('DELETE')
                             <button class="btn btn-secondary btn-sm">
                                 Archiver
                             </button>

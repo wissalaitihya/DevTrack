@@ -71,7 +71,7 @@ class ProjectController extends Controller
     }
 
     // ✅ Archiver un projet (soft delete)
-    public function archive(Project $project)
+    public function destroy(Project $project)
     {
         $this->authorize('archive', $project);
 
