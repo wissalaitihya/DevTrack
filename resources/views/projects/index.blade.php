@@ -44,7 +44,7 @@
                     @endcan
 
                     @can('archive', $project)
-                        <form action="{{ route('projects.archive', $project) }}" 
+                        <form action="{{ route('projects.archives', $project) }}" 
                               method="POST">
                             @csrf
                             @method('PATCH')

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 
@@ -18,6 +19,7 @@ class TaskPolicy
     // ✅ Créer une tâche — uniquement le lead
     public function create(User $user, Task $task): bool
     {
+
         return $task->project->members()
                              ->where('user_id', $user->id)
                              ->wherePivot('role', 'lead')
