@@ -116,7 +116,7 @@
 
                         {{-- Changer statut — developer assigné --}}
                         @can('updateStatus', $task)
-                            <form action="{{ route('tasks.updateStatus', $task) }}" 
+                            <form action="{{ route('tasks.updateStatus', [$project, $task]) }}" 
                                   method="POST"
                                   style="display:flex; gap:5px;">
                                 @csrf
@@ -139,14 +139,14 @@
 
                         {{-- Modifier / Supprimer — lead --}}
                         @can('update', $task)
-                            <a href="{{ route('projects.tasks.edit', [$project, $task]) }}" 
+                            <a href="{{ route('tasks.edit', [$project, $task]) }}" 
                                class="btn btn-warning btn-sm">
                                 Modifier
                             </a>
                         @endcan
 
                         @can('delete', $task)
-                            <form action="{{ route('projects.tasks.destroy', [$project, $task]) }}" 
+                            <form action="{{ route('tasks.destroy', [$project, $task]) }}" 
                                   method="POST">
                                 @csrf
                                 @method('DELETE')

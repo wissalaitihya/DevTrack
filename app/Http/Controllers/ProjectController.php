@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\User;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-        // ✅ Dashboard — liste des projets
+    // ✅ Dashboard — liste des projets
     public function index()
     {
         $projects = auth()->user()->projects()
@@ -74,7 +75,7 @@ class ProjectController extends Controller
     {
         $this->authorize('archive', $project);
 
-        $project->delete(); // soft delete grâce au trait SoftDeletes
+        $project->delete();
 
         return redirect()->route('projects.index')
                          ->with('success', 'Projet archivé !');
@@ -115,5 +116,45 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.archives')
                          ->with('success', 'Projet supprimé définitivement !');
+    }
+
+    // ✅ Ajouter un membre par email
+    public function addMember(Request $request, Project $project)
+    {
+        $this->authorize('manageMember', $project);
+
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        // Vérifier que le user n'est pas déjà membre
+        if ($project->members()->where('user_id', $user->id)->exists()) {
+            return redirect()->back()
+                             ->with('error', 'Cet utilisateur est déjà membre du projet !');
+        }
+
+        $project->members()->attach($user->id, ['role' => 'developer']);
+
+        return redirect()->back()
+                         ->with('success', 'Membre ajouté avec succès !');
+    }
+
+    // ✅ Retirer un membre
+    public function removeMember(Project $project, User $user)
+    {
+        $this->authorize('manageMember', $project);
+
+        // Empêcher le lead de se retirer lui-même
+        if ($user->id === auth()->id()) {
+            return redirect()->back()
+                             ->with('error', 'Vous ne pouvez pas vous retirer vous-même !');
+        }
+
+        $project->members()->detach($user->id);
+
+        return redirect()->back()
+                         ->with('success', 'Membre retiré avec succès !');
     }
 }
