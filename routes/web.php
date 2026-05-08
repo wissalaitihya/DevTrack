@@ -9,7 +9,8 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-     //routes for projects
+
+    // ─── PROJETS ───────────────────────────────────────
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/projects/archives', [ProjectController::class, 'archives'])->name('projects.archives');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
@@ -18,19 +19,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
     Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::patch('/projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
     Route::patch('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
     Route::delete('/projects/{project}/force-delete', [ProjectController::class, 'forceDelete'])->name('projects.forceDelete');
 
-    //routes for members
-    Route::post('/projects/{project}/members', [ProjectController::class, 'addMember'])->name('projects.members.add');
-    Route::delete('/projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('projects.members.remove');
-    //routes for tasks 
-    Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
-    Route::post('/projects/{project}/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    // ─── MEMBRES ───────────────────────────────────────
+    Route::post('/projects/{project}/members', [ProjectController::class, 'addMember'])->name('members.store');
+    Route::delete('/projects/{project}/members/{user}', [ProjectController::class, 'removeMember'])->name('members.destroy');
+
+    // ─── TÂCHES ────────────────────────────────────────
+    Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])->name('projects.tasks.create');
+    Route::post('/projects/{project}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
     Route::get('/projects/{project}/tasks/{task}/edit', [TaskController::class, 'edit'])->name('tasks.edit');
-    Route::put('/projects/{project}/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::put('/projects/{project}/tasks/{task}', [TaskController::class, 'update'])->name('projects.tasks.update');
     Route::delete('/projects/{project}/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
     Route::patch('/projects/{project}/tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.updateStatus');
-});
-require __DIR__.'/auth.php';    
 
+});
+
+require __DIR__.'/auth.php';

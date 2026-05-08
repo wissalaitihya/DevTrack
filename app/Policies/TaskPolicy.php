@@ -2,13 +2,22 @@
 
 namespace App\Policies;
 
-use App\Models\Project;
 use App\Models\Task;
+use App\Models\Project;
 use App\Models\User;
 
 class TaskPolicy
 {
-    // ✅ Voir une tâche — tout membre du projet
+    // ✅ Créer — reçoit Project (pas Task)
+    public function create(User $user, Project $project): bool
+    {
+        return $project->members()
+                       ->where('user_id', $user->id)
+                       ->wherePivot('role', 'lead')
+                       ->exists();
+    }
+
+    // ✅ Voir — membre du projet
     public function view(User $user, Task $task): bool
     {
         return $task->project->members()
@@ -16,17 +25,7 @@ class TaskPolicy
                              ->exists();
     }
 
-    // ✅ Créer une tâche — uniquement le lead
-    public function create(User $user, Task $task): bool
-    {
-
-        return $task->project->members()
-                             ->where('user_id', $user->id)
-                             ->wherePivot('role', 'lead')
-                             ->exists();
-    }
-
-    // ✅ Modifier une tâche — uniquement le lead
+    // ✅ Modifier — lead uniquement
     public function update(User $user, Task $task): bool
     {
         return $task->project->members()
@@ -35,13 +34,13 @@ class TaskPolicy
                              ->exists();
     }
 
-    // ✅ Changer uniquement le statut — developer assigné à la tâche
+    // ✅ Changer statut — developer assigné
     public function updateStatus(User $user, Task $task): bool
     {
         return $task->assigned_to === $user->id;
     }
 
-    // ✅ Supprimer une tâche — uniquement le lead
+    // ✅ Supprimer — lead uniquement
     public function delete(User $user, Task $task): bool
     {
         return $task->project->members()
