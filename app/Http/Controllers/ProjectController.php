@@ -11,15 +11,29 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     // ✅ Dashboard — liste des projets
-    public function index()
-    {
-        $projects = auth()->user()->projects()
-                        ->with(['tasks', 'members'])
-                        ->withCount('tasks')
-                        ->get();
+        public function index()
+{
+    $projects = auth()->user()->projects()
+                    ->with(['tasks', 'members'])
+                    ->withCount('tasks')
+                    ->get();
 
-        return view('projects.index', compact('projects'));
-    }
+    // ✅ Stats pour le dashboard
+    $totalProjects    = $projects->count();
+    $totalTasks       = $projects->sum('tasks_count');
+    $completedTasks   = $projects->flatMap->tasks->where('status', 'done')->count();
+    $urgentTasks      = $projects->flatMap->tasks
+                                ->filter(fn($t) => $t->deadline_status === 'urgent')
+                                ->count();
+
+    return view('projects.index', compact(
+        'projects',
+        'totalProjects',
+        'totalTasks',
+        'completedTasks',
+        'urgentTasks'
+    ));
+}
 
     // ✅ Formulaire créer projet
     public function create()
