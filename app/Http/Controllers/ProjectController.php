@@ -11,29 +11,28 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     // ✅ Dashboard — liste des projets
-        public function index()
-{
-    $projects = auth()->user()->projects()
-                    ->with(['tasks', 'members'])
-                    ->withCount('tasks')
-                    ->get();
+    public function index()
+    {
+        $projects = auth()->user()->projects()
+                        ->with(['tasks', 'members'])
+                        ->withCount('tasks')
+                        ->get();
 
-    // ✅ Stats pour le dashboard
-    $totalProjects    = $projects->count();
-    $totalTasks       = $projects->sum('tasks_count');
-    $completedTasks   = $projects->flatMap->tasks->where('status', 'done')->count();
-    $urgentTasks      = $projects->flatMap->tasks
-                                ->filter(fn($t) => $t->deadline_status === 'urgent')
-                                ->count();
+        $totalProjects  = $projects->count();
+        $totalTasks     = $projects->sum('tasks_count');
+        $completedTasks = $projects->flatMap->tasks->where('status', 'done')->count();
+        $urgentTasks    = $projects->flatMap->tasks
+                                   ->filter(fn($t) => $t->deadline_status === 'urgent')
+                                   ->count();
 
-    return view('projects.index', compact(
-        'projects',
-        'totalProjects',
-        'totalTasks',
-        'completedTasks',
-        'urgentTasks'
-    ));
-}
+        return view('projects.index', compact(
+            'projects',
+            'totalProjects',
+            'totalTasks',
+            'completedTasks',
+            'urgentTasks'
+        ));
+    }
 
     // ✅ Formulaire créer projet
     public function create()
@@ -49,7 +48,6 @@ class ProjectController extends Controller
 
         $project = Project::create($request->validated());
 
-        // Ajouter le créateur comme lead
         $project->members()->attach(auth()->id(), ['role' => 'lead']);
 
         return redirect()->route('projects.index')
@@ -63,8 +61,7 @@ class ProjectController extends Controller
 
         $project->load(['tasks.assignee', 'members']);
 
-        // ✅ Users disponibles = tous les users SAUF membres déjà dans le projet
-        $availableUsers = \App\Models\User::whereNotIn('id', 
+        $availableUsers = User::whereNotIn('id',
             $project->members->pluck('id')
         )->get();
 
@@ -90,7 +87,7 @@ class ProjectController extends Controller
     }
 
     // ✅ Archiver un projet (soft delete)
-    public function destroy(Project $project)
+    public function archive(Project $project)
     {
         $this->authorize('archive', $project);
 
@@ -98,6 +95,17 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.index')
                          ->with('success', 'Projet archivé !');
+    }
+
+    // ✅ Supprimer un projet
+    public function destroy(Project $project)
+    {
+        $this->authorize('forceDelete', $project);
+
+        $project->forceDelete();
+
+        return redirect()->route('projects.index')
+                         ->with('success', 'Projet supprimé !');
     }
 
     // ✅ Page archives
@@ -124,7 +132,7 @@ class ProjectController extends Controller
                          ->with('success', 'Projet restauré !');
     }
 
-    // ✅ BONUS — Supprimer définitivement
+    // ✅ Supprimer définitivement depuis archives
     public function forceDelete($id)
     {
         $project = Project::onlyTrashed()->findOrFail($id);
@@ -137,7 +145,7 @@ class ProjectController extends Controller
                          ->with('success', 'Projet supprimé définitivement !');
     }
 
-    // ✅ Ajouter un membre par email
+    // ✅ Ajouter un membre via liste dropdown
     public function addMember(Request $request, Project $project)
     {
         $this->authorize('manageMember', $project);
@@ -146,7 +154,6 @@ class ProjectController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        // Vérifier pas déjà membre
         if ($project->members()->where('user_id', $request->user_id)->exists()) {
             return redirect()->back()->with('error', 'Utilisateur déjà membre !');
         }
@@ -161,7 +168,6 @@ class ProjectController extends Controller
     {
         $this->authorize('manageMember', $project);
 
-        // Empêcher le lead de se retirer lui-même
         if ($user->id === auth()->id()) {
             return redirect()->back()
                              ->with('error', 'Vous ne pouvez pas vous retirer vous-même !');
