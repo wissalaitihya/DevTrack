@@ -23,7 +23,7 @@
             margin-bottom: 4px;
         }
         .sidebar-link:hover {
-            background: #f1f5f9;
+            background: #e7ecf1;
             color: #1a1a2e;
         }
         .sidebar-link.active {
