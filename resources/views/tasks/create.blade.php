@@ -2,95 +2,185 @@
 
 @section('content')
 
-<div class="page-header">
-    <h1>➕ Nouvelle Tâche</h1>
-    <a href="{{ route('projects.show', $project) }}" class="btn btn-secondary">
-        Retour
-    </a>
-</div>
+<div style="max-width:650px; margin:0 auto;">
 
-<div class="card">
-    <form action="{{ route('projects.tasks.store', $project) }}" method="POST">
-        @csrf
+    <h1 style="font-size:22px; font-weight:700; color:#1a1a2e; margin-bottom:25px;">
+        Create New Task
+    </h1>
 
-        <div class="form-group">
-            <label class="form-label">Titre *</label>
-            <input type="text" 
-                   name="title" 
-                   class="form-control"
-                   value="{{ old('title') }}"
-                   placeholder="Titre de la tâche">
-            @error('title')
-                <p class="form-error">{{ $message }}</p>
-            @enderror
-        </div>
+    <div style="background:white; border-radius:16px; padding:35px; box-shadow:0 2px 10px rgba(0,0,0,0.06);">
 
-        <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea name="description" 
-                      class="form-control" 
-                      rows="3"
-                      placeholder="Description de la tâche">{{ old('description') }}</textarea>
-        </div>
+        <form action="{{ route('projects.tasks.store', $project) }}" method="POST">
+            @csrf
 
-        <div class="form-group">
-            <label class="form-label">Priorité *</label>
-            <select name="priority" class="form-control">
-                <option value="low" {{ old('priority') === 'low' ? 'selected' : '' }}>
-                    🟢 Faible
-                </option>
-                <option value="medium" {{ old('priority') === 'medium' ? 'selected' : '' }}>
-                    🟡 Moyenne
-                </option>
-                <option value="high" {{ old('priority') === 'high' ? 'selected' : '' }}>
-                    🔴 Haute
-                </option>
-            </select>
-            @error('priority')
-                <p class="form-error">{{ $message }}</p>
-            @enderror
-        </div>
+            {{-- Row 1 : Project + Assignee --}}
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
 
-        <div class="form-group">
-            <label class="form-label">Statut *</label>
-            <select name="status" class="form-control">
-                <option value="todo">À faire</option>
-                <option value="in_progress">En cours</option>
-                <option value="done">Terminé</option>
-            </select>
-        </div>
+                {{-- Project --}}
+                <div>
+                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:7px;">
+                        Project
+                    </label>
+                    <div style="
+                        padding:11px 15px;
+                        border:1.5px solid #e5e7eb; border-radius:10px;
+                        font-size:14px; background:#f8fafc; color:#64748b;
+                    ">{{ $project->title }}</div>
+                </div>
 
-        <div class="form-group">
-            <label class="form-label">Deadline *</label>
-            <input type="date" 
-                   name="deadline" 
-                   class="form-control"
-                   value="{{ old('deadline') }}">
-            @error('deadline')
-                <p class="form-error">{{ $message }}</p>
-            @enderror
-        </div>
+                {{-- Assignee --}}
+                <div>
+                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:7px;">
+                        Assignee
+                    </label>
+                    <select name="assigned_to" style="
+                        width:100%; padding:11px 15px;
+                        border:1.5px solid #e5e7eb; border-radius:10px;
+                        font-size:14px; outline:none;
+                        font-family:'Outfit',sans-serif;
+                        background:white; cursor:pointer;
+                    "
+                    onfocus="this.style.borderColor='#3b82f6'"
+                    onblur="this.style.borderColor='#e5e7eb'">
+                        <option value="">Select assignee...</option>
+                        @foreach($members as $member)
+                            <option value="{{ $member->id }}"
+                                {{ old('assigned_to') == $member->id ? 'selected' : '' }}>
+                                {{ $member->name }} ({{ ucfirst($member->pivot->role) }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('assigned_to')
+                        <p style="color:#dc2626; font-size:12px; margin-top:4px;">{{ $message }}</p>
+                    @enderror
+                </div>
 
-        <div class="form-group">
-            <label class="form-label">Assigner à *</label>
-            <select name="assigned_to" class="form-control">
-                <option value="">-- Choisir un développeur --</option>
-                @foreach($members as $member)
-                    <option value="{{ $member->id }}" 
-                            {{ old('assigned_to') == $member->id ? 'selected' : '' }}>
-                        {{ $member->name }} ({{ $member->pivot->role }})
-                    </option>
-                @endforeach
-            </select>
-            @error('assigned_to')
-                <p class="form-error">{{ $message }}</p>
-            @enderror
-        </div>
+            </div>
 
-        <button type="submit" class="btn btn-primary">
-            Créer la tâche
-        </button>
-    </form>
+            {{-- Row 2 : Priority + Status --}}
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+
+                {{-- Priority --}}
+                <div>
+                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:7px;">
+                        Priority
+                    </label>
+                    <select name="priority" style="
+                        width:100%; padding:11px 15px;
+                        border:1.5px solid #e5e7eb; border-radius:10px;
+                        font-size:14px; outline:none;
+                        font-family:'Outfit',sans-serif;
+                        background:white; cursor:pointer;
+                    "
+                    onfocus="this.style.borderColor='#3b82f6'"
+                    onblur="this.style.borderColor='#e5e7eb'">
+                        <option value="low"    {{ old('priority')==='low'    ? 'selected' : '' }}>Low</option>
+                        <option value="medium" {{ old('priority')==='medium' ? 'selected' : '' }} selected>Medium</option>
+                        <option value="high"   {{ old('priority')==='high'   ? 'selected' : '' }}>High</option>
+                    </select>
+                </div>
+
+                {{-- Status --}}
+                <div>
+                    <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:7px;">
+                        Status
+                    </label>
+                    <select name="status" style="
+                        width:100%; padding:11px 15px;
+                        border:1.5px solid #e5e7eb; border-radius:10px;
+                        font-size:14px; outline:none;
+                        font-family:'Outfit',sans-serif;
+                        background:white; cursor:pointer;
+                    "
+                    onfocus="this.style.borderColor='#3b82f6'"
+                    onblur="this.style.borderColor='#e5e7eb'">
+                        <option value="todo"        {{ old('status')==='todo'        ? 'selected' : '' }}>To Do</option>
+                        <option value="in_progress" {{ old('status')==='in_progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="done"        {{ old('status')==='done'        ? 'selected' : '' }}>Done</option>
+                    </select>
+                </div>
+
+            </div>
+
+            {{-- Title --}}
+            <div style="margin-bottom:20px;">
+                <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:7px;">
+                    Task Title
+                </label>
+                <input type="text" name="title"
+                       value="{{ old('title') }}"
+                       placeholder="Enter task title..."
+                       style="
+                           width:100%; padding:11px 15px;
+                           border:1.5px solid #e5e7eb; border-radius:10px;
+                           font-size:14px; outline:none;
+                           font-family:'Outfit',sans-serif;
+                           box-sizing:border-box;
+                       "
+                       onfocus="this.style.borderColor='#3b82f6'"
+                       onblur="this.style.borderColor='#e5e7eb'">
+                @error('title')
+                    <p style="color:#dc2626; font-size:12px; margin-top:4px;">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Deadline --}}
+            <div style="margin-bottom:20px;">
+                <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:7px;">
+                    Deadline
+                </label>
+                <input type="date" name="deadline"
+                       value="{{ old('deadline') }}"
+                       style="
+                           width:100%; padding:11px 15px;
+                           border:1.5px solid #e5e7eb; border-radius:10px;
+                           font-size:14px; outline:none;
+                           font-family:'Outfit',sans-serif;
+                           box-sizing:border-box;
+                       "
+                       onfocus="this.style.borderColor='#3b82f6'"
+                       onblur="this.style.borderColor='#e5e7eb'">
+            </div>
+
+            {{-- Description --}}
+            <div style="margin-bottom:25px;">
+                <label style="font-size:13px; font-weight:600; color:#374151; display:block; margin-bottom:7px;">
+                    Description
+                </label>
+                <textarea name="description" rows="4"
+                          placeholder="Enter task description..."
+                          style="
+                              width:100%; padding:11px 15px;
+                              border:1.5px solid #e5e7eb; border-radius:10px;
+                              font-size:14px; outline:none; resize:vertical;
+                              font-family:'Outfit',sans-serif;
+                              box-sizing:border-box;
+                          "
+                          onfocus="this.style.borderColor='#3b82f6'"
+                          onblur="this.style.borderColor='#e5e7eb'">{{ old('description') }}</textarea>
+            </div>
+
+            {{-- Buttons --}}
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <a href="{{ route('projects.show', $project) }}" style="
+                    background:#f1f5f9; color:#64748b;
+                    padding:11px 24px; border-radius:10px;
+                    text-decoration:none; font-weight:600; font-size:14px;
+                ">Cancel</a>
+                <button type="submit" style="
+                    background:#3b82f6; color:white;
+                    padding:11px 24px; border-radius:10px;
+                    border:none; font-weight:600; font-size:14px;
+                    cursor:pointer; font-family:'Outfit',sans-serif;
+                "
+                onmouseover="this.style.background='#2563eb'"
+                onmouseout="this.style.background='#3b82f6'">
+                    Create Task
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
 
 @endsection

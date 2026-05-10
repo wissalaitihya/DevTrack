@@ -2,442 +2,172 @@
 
 @section('content')
 
-    <style>
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+{{-- Header --}}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+    <h1 style="font-size:22px; font-weight:700; color:#1a1a2e;">Project Directory</h1>
+    @can('create', App\Models\Project::class)
+        <a href="{{ route('projects.create') }}" style="
+            background:#3b82f6; color:white;
+            padding:10px 22px; border-radius:10px;
+            text-decoration:none; font-weight:600; font-size:14px;
+            display:flex; align-items:center; gap:8px;
+        ">+ New Project</a>
+    @endcan
+</div>
 
-        .stat-card {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border-left: 4px solid #3b82f6;
-        }
-
-        .stat-card.green {
-            border-left-color: #10b981;
-        }
-
-        .stat-card.blue {
-            border-left-color: #3b82f6;
-        }
-
-        .stat-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .stat-card-title {
-            font-size: 14px;
-            color: #6b7280;
-            font-weight: 600;
-        }
-
-        .stat-card-icon {
-            width: 24px;
-            height: 24px;
-            opacity: 0.7;
-        }
-
-        .stat-card-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-
-        .stat-card-meta {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chart-container {
-            height: 300px;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            padding: 20px 0;
-        }
-
-        .chart-bar {
-            flex: 1;
-            background: linear-gradient(to top, #3b82f6, #60a5fa);
-            border-radius: 4px 4px 0 0;
-            min-height: 40px;
-            transition: all 0.3s ease;
-        }
-
-        .chart-bar:hover {
-            opacity: 0.8;
-        }
-
-        .projects-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .projects-table thead {
-            background-color: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .projects-table th {
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .projects-table td {
-            padding: 12px 16px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 14px;
-            color: #1f2937;
-        }
-
-        .projects-table tbody tr:hover {
-            background-color: #f9fafb;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-in-progress {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-done {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-todo {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        .projects-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .project-card-new {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
-        }
-
-        .project-card-new:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-color: #3b82f6;
-        }
-
-        .project-card-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-
-        .project-card-desc {
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-
-        .project-card-progress {
-            width: 100%;
-            height: 6px;
-            background-color: #e5e7eb;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .project-card-progress-bar {
-            height: 100%;
-            background: linear-gradient(to right, #3b82f6, #60a5fa);
-            border-radius: 3px;
-        }
-
-        .project-card-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 12px;
-        }
-
-        .project-card-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-small {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #e5e7eb;
-            background: white;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #6b7280;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        .btn-small:hover {
-            background: #f3f4f6;
-            border-color: #d1d5db;
-        }
-
-        .btn-small-primary {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .btn-small-primary:hover {
-            background: #2563eb;
-            border-color: #2563eb;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 8px;
-        }
-
-        .empty-state p {
-            font-size: 16px;
-            color: #6b7280;
-            margin-bottom: 20px;
-        }
-
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 6px;
-            text-decoration: none;
-            display: inline-block;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-    </style>
-
-    <!-- Stats Cards -->
-    <div class="dashboard-stats">
-        <div class="stat-card blue">
-            <div class="stat-card-header">
-                <span class="stat-card-title">Active Projects:</span>
-                <svg class="stat-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                        d="M13.5V13h1v-.5a.5.5 0 0 1 1 0V13h1a.5.5 0 0 1 0 1h-1v.5a.5.5 0 0 1-1 0V14h-1a.5.5 0 0 1 0-1zm-10 0a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-                </svg>
-            </div>
-            <div class="stat-card-value">{{ $projects->count() }}</div>
-            <div class="stat-card-meta">All active projects</div>
-        </div>
-
-        <div class="stat-card green">
-            <div class="stat-card-header">
-                <span class="stat-card-title">Completed Tasks:</span>
-                <svg class="stat-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                </svg>
-            </div>
-            <div class="stat-card-value">
-                {{ $projects->flatMap(function ($p) {
-        return $p->tasks->where('status', 'done'); })->count() }}</div>
-            <div class="stat-card-meta">This Month: +{{ rand(5, 15) }}</div>
-        </div>
-
-        <div class="stat-card blue">
-            <div class="stat-card-header">
-                <span class="stat-card-title">Team Velocity:</span>
-                <svg class="stat-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10 19H5V5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h5v-2z" />
-                </svg>
-            </div>
-            <div class="stat-card-value">{{ rand(40, 70) }} pts</div>
-            <div class="stat-card-meta">Sprint 4</div>
-        </div>
+{{-- Stats --}}
+<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-bottom:25px;">
+    <div style="background:white; border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+        <p style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Total Projects</p>
+        <h3 style="font-size:28px; font-weight:700; color:#1a1a2e;">{{ $totalProjects }}</h3>
     </div>
-
-    <!-- Charts and Recent Tasks -->
-    <div class="dashboard-grid">
-        <!-- Project Progression Chart -->
-        <div class="card">
-            <div class="card-title">
-                Project Progression (Last 6 Weeks)
-                <svg class="stat-card-icon" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M19 12h-2v-2h-2v2h-2v2h2v2h2v-2h2v-2zm-8-6H9v6H7V6H5v12h14V6h-8z" />
-                </svg>
-            </div>
-            <div class="chart-container">
-                <div class="chart-bar" style="height: 45%;"></div>
-                <div class="chart-bar" style="height: 60%;"></div>
-                <div class="chart-bar" style="height: 75%;"></div>
-                <div class="chart-bar" style="height: 40%;"></div>
-                <div class="chart-bar" style="height: 65%;"></div>
-                <div class="chart-bar" style="height: 85%;"></div>
-            </div>
-        </div>
-
-        <!-- Recent Tasks -->
-        <div class="card">
-            <div class="card-title">Recent Tasks</div>
-            <table class="projects-table">
-                <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>Project</th>
-                        <th>Assignee</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($projects->flatMap(function ($p) {
-                            return $p->tasks()->orderBy('created_at', 'desc')->limit(3)->get()->map(function ($t) use ($p) {
-                                $t->project = $p;
-                        return $t; }); }) as $task)
-                        <tr>
-                            <td>{{ Str::limit($task->title, 15) }}</td>
-                            <td>{{ Str::limit($task->project->title, 15) }}</td>
-                            <td>{{ $task->assignee?->name ?? 'Unassigned' }}</td>
-                            <td>
-                                <span
-                                    class="status-badge {{ $task->status == 'done' ? 'status-done' : ($task->status == 'in_progress' ? 'status-in-progress' : 'status-todo') }}">
-                                    {{ ucfirst($task->status) }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: #9ca3af;">No tasks yet</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <div style="background:white; border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+        <p style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Completed Tasks</p>
+        <h3 style="font-size:28px; font-weight:700; color:#059669;">{{ $completedTasks }}</h3>
     </div>
+    <div style="background:white; border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+        <p style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Urgent Tasks</p>
+        <h3 style="font-size:28px; font-weight:700; color:#ef4444;">{{ $urgentTasks }}</h3>
+    </div>
+</div>
 
-    <!-- Projects Section -->
-    <div class="card">
-        <div class="card-title">
-            My Projects
-            @can('create', App\Models\Project::class)
-                <a href="{{ route('projects.create') }}" class="btn-primary" style="padding: 8px 16px; font-size: 13px;">
-                    + New Project
-                </a>
-            @endcan
-        </div>
+{{-- Projects Grid --}}
+@if($projects->isEmpty())
+    <div style="background:white; border-radius:16px; padding:60px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+        <p style="font-size:40px; margin-bottom:15px;">📭</p>
+        <p style="font-size:16px; color:#888;">Aucun projet pour le moment</p>
+        <a href="{{ route('projects.create') }}" style="
+            display:inline-block; margin-top:20px;
+            background:#3b82f6; color:white;
+            padding:10px 22px; border-radius:10px;
+            text-decoration:none; font-weight:600;
+        ">Créer votre premier projet</a>
+    </div>
+@else
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:18px;">
+        @foreach($projects as $project)
+            @php
+                $done  = $project->tasks->where('status','done')->count();
+                $total = $project->tasks_count;
+                $pct   = $total > 0 ? round(($done/$total)*100) : 0;
+                $role  = $project->members->find(auth()->id())?->pivot->role ?? 'member';
+                $urgent = $project->tasks->filter(fn($t) => $t->deadline_status === 'urgent')->count();
 
-        @if($projects->isEmpty())
-            <div class="empty-state">
-                <p>No projects yet. Create your first project to get started!</p>
-                @can('create', App\Models\Project::class)
-                    <a href="{{ route('projects.create') }}" class="btn-primary">
-                        Create First Project
-                    </a>
-                @endcan
-            </div>
-        @else
-            <div class="projects-list">
-                @foreach($projects as $project)
-                    <div class="project-card-new">
-                        <div class="project-card-title">{{ $project->title }}</div>
-                        <div class="project-card-desc">{{ $project->description ?? 'No description' }}</div>
+                // Status couleur
+                $statusColor = match(true) {
+                    $pct >= 80  => ['bg' => '#d1fae5', 'text' => '#059669', 'label' => 'Near Completion'],
+                    $pct >= 30  => ['bg' => '#dbeafe', 'text' => '#2563eb', 'label' => 'In Progress'],
+                    $pct === 0  => ['bg' => '#fef3c7', 'text' => '#d97706', 'label' => 'Planning'],
+                    default     => ['bg' => '#ede9fe', 'text' => '#7c3aed', 'label' => 'Active'],
+                };
 
-                        <div class="project-card-progress">
-                            <div class="project-card-progress-bar"
-                                style="width: {{ $project->tasks_count > 0 ? ($project->tasks->where('status', 'done')->count() / $project->tasks_count * 100) : 0 }}%;">
-                            </div>
-                        </div>
+                // Progress bar couleur
+                $barColor = match(true) {
+                    $pct >= 80  => '#10b981',
+                    $pct >= 50  => '#3b82f6',
+                    $pct >= 20  => '#f59e0b',
+                    default     => '#ef4444',
+                };
+            @endphp
 
-                        <div class="project-card-meta">
-                            <span>📅 {{ \Carbon\Carbon::parse($project->deadline)->format('M d, Y') }}</span>
-                            <span>✅ {{ $project->tasks->where('status', 'done')->count() }}/{{ $project->tasks_count }}</span>
-                        </div>
+            <div style="
+                background:white; border-radius:14px; padding:20px;
+                box-shadow:0 2px 10px rgba(0,0,0,0.05);
+                transition:box-shadow 0.2s, transform 0.2s;
+                cursor:pointer;
+            "
+            onmouseover="this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'; this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.boxShadow='0 2px 10px rgba(0,0,0,0.05)'; this.style.transform='translateY(0)'">
 
-                        <div class="project-card-actions">
-                            <a href="{{ route('projects.show', $project) }}" class="btn-small btn-small-primary">View</a>
-                            @can('update', $project)
-                                <a href="{{ route('projects.edit', $project) }}" class="btn-small">Edit</a>
-                            @endcan
-                            @can('archive', $project)
-                                <form action="{{ route('projects.destroy', $project) }}" method="POST" style="flex: 1;"
-                                    onsubmit="return confirm('Archive this project?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn-small" style="width: 100%;">Archive</button>
-                                </form>
-                            @endcan
-                        </div>
+                {{-- Header --}}
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                    <h3 style="font-size:15px; font-weight:600; color:#1a1a2e; margin:0; flex:1; padding-right:10px;">
+                        {{ $project->title }}
+                    </h3>
+                    <span style="
+                        background:{{ $statusColor['bg'] }};
+                        color:{{ $statusColor['text'] }};
+                        padding:3px 10px; border-radius:20px;
+                        font-size:11px; font-weight:600; white-space:nowrap;
+                    ">{{ $statusColor['label'] }}</span>
+                </div>
+
+                {{-- Description --}}
+                <p style="font-size:12px; color:#94a3b8; margin-bottom:14px; line-height:1.5;">
+                    {{ Str::limit($project->description ?? 'No description', 65) }}
+                </p>
+
+                {{-- Progress --}}
+                <div style="margin-bottom:14px;">
+                    <div style="background:#f1f5f9; border-radius:10px; height:6px;">
+                        <div style="background:{{ $barColor }}; border-radius:10px; height:6px; width:{{ $pct }}%;"></div>
                     </div>
-                @endforeach
+                    <p style="font-size:11px; color:#94a3b8; margin-top:5px;">Progress: {{ $pct }}%</p>
+                </div>
+
+                {{-- Footer --}}
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    {{-- Avatars membres --}}
+                    <div style="display:flex;">
+                        @foreach($project->members->take(3) as $member)
+                            <div style="
+                                width:28px; height:28px; border-radius:50%;
+                                background:{{ $member->pivot->role === 'lead' ? '#7c3aed' : '#3b82f6' }};
+                                color:white; font-size:11px; font-weight:600;
+                                display:flex; align-items:center; justify-content:center;
+                                border:2px solid white; margin-right:-6px;
+                            ">{{ strtoupper(substr($member->name,0,1)) }}</div>
+                        @endforeach
+                        @if($project->members->count() > 3)
+                            <div style="
+                                width:28px; height:28px; border-radius:50%;
+                                background:#e2e8f0; color:#64748b;
+                                font-size:10px; font-weight:600;
+                                display:flex; align-items:center; justify-content:center;
+                                border:2px solid white; margin-right:-6px;
+                            ">+{{ $project->members->count() - 3 }}</div>
+                        @endif
+                    </div>
+
+                    <span style="font-size:11px; color:#94a3b8;">
+                        Due: {{ \Carbon\Carbon::parse($project->deadline)->format('M d') }}
+                    </span>
+                </div>
+
+                {{-- Actions --}}
+                <div style="display:flex; gap:6px; margin-top:14px; padding-top:14px; border-top:1px solid #f1f5f9;">
+                    <a href="{{ route('projects.show', $project) }}" style="
+                        flex:1; text-align:center;
+                        background:#eff6ff; color:#3b82f6;
+                        padding:7px; border-radius:8px;
+                        text-decoration:none; font-size:12px; font-weight:600;
+                    ">View</a>
+
+                    @can('update', $project)
+                        <a href="{{ route('projects.edit', $project) }}" style="
+                            flex:1; text-align:center;
+                            background:#fef3c7; color:#d97706;
+                            padding:7px; border-radius:8px;
+                            text-decoration:none; font-size:12px; font-weight:600;
+                        ">Edit</a>
+                    @endcan
+
+                    @can('archive', $project)
+                        <form action="{{ route('projects.archive', $project) }}" method="POST" style="flex:1;">
+                            @csrf @method('PATCH')
+                            <button style="
+                                width:100%; background:#fee2e2; color:#dc2626;
+                                padding:7px; border-radius:8px;
+                                border:none; font-size:12px; font-weight:600;
+                                cursor:pointer; font-family:'Outfit',sans-serif;
+                            ">Archive</button>
+                        </form>
+                    @endcan
+                </div>
+
             </div>
-        @endif
+        @endforeach
     </div>
+@endif
 
 @endsection
