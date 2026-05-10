@@ -82,20 +82,29 @@
 <div style="background:white; border-radius:14px; padding:20px; margin-bottom:25px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
     <h3 style="font-size:14px; font-weight:600; color:#1a1a2e; margin-bottom:15px;">👥 Team Members</h3>
     <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+        {{-- ✅ Avatar membre dans show --}}
         @foreach($project->members as $member)
             <div style="display:flex; align-items:center; gap:8px; background:#f8fafc; padding:8px 14px; border-radius:25px;">
-                <div style="
-                    width:28px; height:28px; border-radius:50%;
-                    background:{{ $member->pivot->role==='lead' ? '#7c3aed' : '#3b82f6' }};
-                    color:white; font-size:11px; font-weight:600;
-                    display:flex; align-items:center; justify-content:center;
-                ">{{ strtoupper(substr($member->name,0,1)) }}</div>
+
+                @if($member->avatar)
+                    <img src="{{ asset('avatars/' . $member->avatar) }}"
+                        style="width:28px; height:28px; border-radius:50%; object-fit:cover;">
+                @else
+                    <div style="
+                        width:28px; height:28px; border-radius:50%;
+                        background:{{ $member->pivot->role==='lead' ? '#7c3aed' : '#3b82f6' }};
+                        color:white; font-size:11px; font-weight:600;
+                        display:flex; align-items:center; justify-content:center;
+                    ">{{ strtoupper(substr($member->name,0,1)) }}</div>
+                @endif
+
                 <span style="font-size:13px; font-weight:500;">{{ $member->name }}</span>
                 <span style="
                     background:{{ $member->pivot->role==='lead' ? '#ede9fe' : '#dbeafe' }};
                     color:{{ $member->pivot->role==='lead' ? '#7c3aed' : '#2563eb' }};
                     padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600;
                 ">{{ ucfirst($member->pivot->role) }}</span>
+
                 @can('manageMember', $project)
                     @if($member->id !== auth()->id())
                         <form action="{{ route('projects.members.remove',[$project,$member]) }}" method="POST">

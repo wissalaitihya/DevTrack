@@ -28,18 +28,30 @@
     {{-- Assignee + Deadline --}}
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <div style="display:flex; align-items:center; gap:6px;">
-            <div style="
-                width:24px; height:24px; border-radius:50%;
-                background:#3b82f6; color:white;
-                display:flex; align-items:center; justify-content:center;
-                font-size:11px; font-weight:600;
-            ">
-                {{ strtoupper(substr($task->assignee->name ?? '?', 0, 1)) }}
-            </div>
+
+            {{-- ✅ Avatar — photo ou initiale --}}
+            @if($task->assignee?->avatar)
+                <img src="{{ asset('avatars/' . $task->assignee->avatar) }}"
+                    style="
+                        width:24px; height:24px; border-radius:50%;
+                        object-fit:cover; border:1.5px solid #e5e7eb;
+                    ">
+            @else
+                <div style="
+                    width:24px; height:24px; border-radius:50%;
+                    background:#3b82f6; color:white;
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:11px; font-weight:600;
+                ">
+                    {{ strtoupper(substr($task->assignee->name ?? '?', 0, 1)) }}
+                </div>
+            @endif
+
             <span style="font-size:12px; color:#64748b;">
                 {{ $task->assignee->name ?? 'Non assigné' }}
             </span>
         </div>
+
         @if($task->deadline)
             <span style="font-size:11px; color:#94a3b8;">
                 📅 {{ \Carbon\Carbon::parse($task->deadline)->format('M d') }}
