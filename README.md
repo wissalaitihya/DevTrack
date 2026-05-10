@@ -1,58 +1,265 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# DevTrack
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**A lightweight project & task management tool built for dev teams.**  
+Team Leads create projects, manage members, and assign tasks.  
+Developers track and update their own tasks in real time.
 
-## About Laravel
+</div>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📌 Table of Contents
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Database Schema](#-database-schema)
+- [Installation](#-installation)
+- [Test Credentials](#-test-credentials)
+- [API](#-api-endpoint)
+- [Git Workflow](#-git-workflow)
+- [Team](#-team)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🧭 Overview
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+DevTrack is an internal tool developed for a startup based in Technopark Agadir.  
+Before DevTrack, the Team Lead was managing tasks via WhatsApp, Excel, and scattered notes.  
+Developers had no clear view of their assignments or project progress.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+DevTrack solves this by providing:
+- A clean dashboard per user showing only relevant projects
+- Role-based access control (Lead vs Developer)
+- Full task lifecycle management
+- A REST API for external integrations
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## ✅ Features
 
-```bash
-composer require laravel/boost --dev
+### Authentication
+- [x] Register, Login, Logout via Laravel Breeze
 
-php artisan boost:install
+### Projects
+- [x] Create / Edit projects (Lead only)
+- [x] Archive projects with SoftDeletes
+- [x] Restore archived projects
+- [x] Force delete from archives (bonus)
+- [x] Add / Remove members by email
+- [x] Dashboard shows task progress per project
+
+### Tasks
+- [x] Create / Edit / Delete tasks (Lead only)
+- [x] Assign tasks to project members
+- [x] Set priority (low / medium / high)
+- [x] Set deadline with overdue indicator
+- [x] Developer can update status of their own task only
+- [x] Urgent scope — tasks due in less than 48h
+
+### API
+- [x] `GET /api/projects/{project}/tasks` — returns tasks as JSON via TaskResource
+
+### Bonus
+- [x] `ucfirst` mutator on Project title
+- [x] `urgent()` local scope on Task model
+- [x] `status_label` accessor on Task model
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Laravel 13 |
+| Language | PHP 8.3 |
+| Database | MySQL 8 |
+| Authentication | Laravel Breeze |
+| Authorization | Laravel Policies |
+| Validation | Form Request Classes |
+| Debugging | Laravel Telescope + Debugbar |
+| Frontend | Bootstrap 5 + Bootstrap Icons |
+| Version Control | Git + GitHub |
+
+---
+
+## 🗄️ Database Schema
+
+```
+┌─────────────┐       ┌──────────────────┐       ┌─────────────┐
+│    users    │       │  project_user    │       │  projects   │
+│─────────────│       │──────────────────│       │─────────────│
+│ id          │◄──────│ user_id (FK)     │──────►│ id          │
+│ name        │       │ project_id (FK)  │       │ title       │
+│ email       │       │ role             │       │ description │
+│ password    │       │ (lead/developer) │       │ deadline    │
+└─────────────┘       └──────────────────┘       │ deleted_at  │
+                                                  └──────┬──────┘
+                                                         │
+                                                         ▼
+                                                  ┌─────────────┐
+                                                  │    tasks    │
+                                                  │─────────────│
+                                                  │ id          │
+                                                  │ title       │
+                                                  │ description │
+                                                  │ status      │
+                                                  │ priority    │
+                                                  │ deadline    │
+                                                  │ project_id  │
+                                                  │ assigned_to │
+                                                  └─────────────┘
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## ⚙️ Installation
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Prerequisites
 
-## Code of Conduct
+- PHP >= 8.3
+- Composer
+- MySQL
+- Laragon (recommended) or any local server
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Setup
 
-## Security Vulnerabilities
+```bash
+# 1. Clone the repository
+git clone https://github.com/wissalaitihya/DevTrack.git
+cd DevTrack
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 2. Install PHP dependencies
+composer install
 
-## License
+# 3. Environment setup
+cp .env.example .env
+php artisan key:generate
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 4. Configure your database in .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=devtrack
+DB_USERNAME=root
+DB_PASSWORD=
+
+# 5. Run migrations and seed test data
+php artisan migrate:fresh --seed
+
+# 6. Start development server
+php artisan serve
+```
+
+Visit **http://localhost:8000**
+
+---
+
+## 🔑 Test Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Team Lead | lead@devtrack.com | password |
+| Developer | dev1@devtrack.com | password |
+| Developer | dev2@devtrack.com | password |
+
+---
+
+## 📡 API Endpoint
+
+### Get tasks for a project
+
+```http
+GET /api/projects/{project}/tasks
+```
+
+### Example Response
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Setup Laravel project",
+      "description": "Initialize the project with all dependencies",
+      "status": "done",
+      "status_label": "Done",
+      "priority": "high",
+      "deadline": "2026-05-10",
+      "assigned_to": "Dev One"
+    },
+    {
+      "id": 2,
+      "title": "Build authentication module",
+      "description": "Implement login, register and logout",
+      "status": "in_progress",
+      "status_label": "In Progress",
+      "priority": "high",
+      "deadline": "2026-05-15",
+      "assigned_to": "Dev Two"
+    }
+  ]
+}
+```
+
+---
+
+## 🔐 Security
+
+| Concern | Solution |
+|---------|----------|
+| Route protection | `auth` middleware on all routes |
+| Project authorization | `ProjectPolicy` with `@can` in views |
+| Task authorization | `TaskPolicy` with `@can` in views |
+| Input validation | Form Request classes on all forms |
+| CSRF protection | `@csrf` on all forms |
+| Ownership | Only Lead can edit/delete, only assigned dev can update status |
+
+---
+
+## 🧰 Debugging
+
+### Laravel Telescope
+```
+http://localhost:8000/telescope
+```
+- Inspect every HTTP request with full payload
+- View all SQL queries executed per request
+- Track exceptions and errors
+
+### Laravel Debugbar
+- Visible at the bottom of every page in development
+- Shows query count per page
+- Used to detect and fix N+1 query problems
+
+---
+
+## 🌿 Git Workflow
+
+```
+main
+├── feat/database-setup   → Migrations, Models, Seeders
+├── feat/auth             → Laravel Breeze authentication
+├── feat/projects         → Project CRUD, Members, Policies
+├── feat/tasks            → Task CRUD, TaskPolicy
+├── feat/api              → API endpoint + TaskResource
+└── feat/bonus            → Mutator, Scope, Force delete
+```
+
+> All features developed on separate branches with Pull Requests before merging to `main`.
+
+---
+
+## 👥 Team
+
+| Member | Responsibilities |
+|--------|-----------------|
+| **Wissal** | Repository creation, API development, Database setup & seeders, Debugbar & Telescope installation, Routes, Jira management, Tasks, and Policies|
+| **Hassan** | MCD & MLD design, Models, Authentication, Controllers, and Form Requests, Views |
+
+---
+
+## 📄 License
+
+This project was developed as part of a training program at **Technopark Agadir**.  
+For educational purposes only.
