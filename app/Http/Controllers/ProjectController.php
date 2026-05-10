@@ -63,7 +63,12 @@ class ProjectController extends Controller
 
         $project->load(['tasks.assignee', 'members']);
 
-        return view('projects.show', compact('project'));
+        // ✅ Users disponibles = tous les users SAUF membres déjà dans le projet
+        $availableUsers = \App\Models\User::whereNotIn('id', 
+            $project->members->pluck('id')
+        )->get();
+
+        return view('projects.show', compact('project', 'availableUsers'));
     }
 
     // ✅ Formulaire modifier projet
@@ -138,21 +143,17 @@ class ProjectController extends Controller
         $this->authorize('manageMember', $project);
 
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'user_id' => 'required|exists:users,id',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        // Vérifier que le user n'est pas déjà membre
-        if ($project->members()->where('user_id', $user->id)->exists()) {
-            return redirect()->back()
-                             ->with('error', 'Cet utilisateur est déjà membre du projet !');
+        // Vérifier pas déjà membre
+        if ($project->members()->where('user_id', $request->user_id)->exists()) {
+            return redirect()->back()->with('error', 'Utilisateur déjà membre !');
         }
 
-        $project->members()->attach($user->id, ['role' => 'developer']);
+        $project->members()->attach($request->user_id, ['role' => 'developer']);
 
-        return redirect()->back()
-                         ->with('success', 'Membre ajouté avec succès !');
+        return redirect()->back()->with('success', 'Membre ajouté avec succès !');
     }
 
     // ✅ Retirer un membre

@@ -108,17 +108,45 @@
         @endforeach
     </div>
 
+    {{-- Ajouter membre --}}
     @can('manageMember', $project)
-        <form action="{{ route('projects.members.add',$project) }}" method="POST" style="display:flex; gap:10px;">
-            @csrf
-            <input type="email" name="email" placeholder="Add member by email..."
-                   style="flex:1; padding:10px 15px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:13px; outline:none; font-family:'Outfit',sans-serif;"
-                   onfocus="this.style.borderColor='#3b82f6'"
-                   onblur="this.style.borderColor='#e5e7eb'">
-            <button type="submit" style="background:#3b82f6; color:white; padding:10px 20px; border-radius:10px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:'Outfit',sans-serif;">
-                + Add
-            </button>
-        </form>
+
+        @if($availableUsers->count() > 0)
+            <form action="{{ route('projects.members.add', $project) }}" method="POST"
+                style="display:flex; gap:10px; margin-top:15px;">
+                @csrf
+
+                <select name="user_id" style="
+                    flex:1; padding:10px 15px;
+                    border:1.5px solid #e5e7eb; border-radius:10px;
+                    font-size:13px; outline:none;
+                    font-family:'Outfit', sans-serif;
+                    background:white; cursor:pointer;
+                "
+                onfocus="this.style.borderColor='#3b82f6'"
+                onblur="this.style.borderColor='#e5e7eb'">
+                    <option value="">-- Sélectionner un développeur --</option>
+                    @foreach($availableUsers as $user)
+                        <option value="{{ $user->id }}">
+                            {{ $user->name }} — {{ $user->email }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <button type="submit" style="
+                    background:#3b82f6; color:white;
+                    padding:10px 20px; border-radius:10px;
+                    border:none; font-size:13px; font-weight:600;
+                    cursor:pointer; font-family:'Outfit', sans-serif;
+                ">+ Add</button>
+
+            </form>
+        @else
+            <p style="font-size:13px; color:#94a3b8; margin-top:15px;">
+                ✅ Tous les utilisateurs inscrits sont déjà membres du projet
+            </p>
+        @endif
+
     @endcan
 </div>
 
