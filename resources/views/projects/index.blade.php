@@ -109,14 +109,24 @@
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     {{-- Avatars membres --}}
                     <div style="display:flex;">
+                        {{-- ✅ Après — photo ou initiale --}}
                         @foreach($project->members->take(3) as $member)
-                            <div style="
-                                width:28px; height:28px; border-radius:50%;
-                                background:{{ $member->pivot->role === 'lead' ? '#7c3aed' : '#3b82f6' }};
-                                color:white; font-size:11px; font-weight:600;
-                                display:flex; align-items:center; justify-content:center;
-                                border:2px solid white; margin-right:-6px;
-                            ">{{ strtoupper(substr($member->name,0,1)) }}</div>
+                            @if($member->avatar)
+                                <img src="{{ asset('avatars/' . $member->avatar) }}"
+                                    style="
+                                        width:28px; height:28px; border-radius:50%;
+                                        object-fit:cover;
+                                        border:2px solid white; margin-right:-6px;
+                                    ">
+                            @else
+                                <div style="
+                                    width:28px; height:28px; border-radius:50%;
+                                    background:{{ $member->pivot->role === 'lead' ? '#7c3aed' : '#3b82f6' }};
+                                    color:white; font-size:11px; font-weight:600;
+                                    display:flex; align-items:center; justify-content:center;
+                                    border:2px solid white; margin-right:-6px;
+                                ">{{ strtoupper(substr($member->name,0,1)) }}</div>
+                            @endif
                         @endforeach
                         @if($project->members->count() > 3)
                             <div style="

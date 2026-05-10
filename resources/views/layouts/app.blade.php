@@ -9,23 +9,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
         * { font-family: 'Outfit', sans-serif; }
 
-        .nav-link {
-            text-decoration: none;
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 500;
-            padding: 8px 14px;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .nav-link:hover {
-            background: #f1f5f9;
-            color: #1a1a2e;
-        }
-        .nav-link.active {
-            background: #eff6ff;
-            color: #3b82f6;
-        }
         .sidebar-link {
             display: flex;
             align-items: center;
@@ -40,7 +23,7 @@
             margin-bottom: 4px;
         }
         .sidebar-link:hover {
-            background: #f1f5f9;
+            background: #e7ecf1;
             color: #1a1a2e;
         }
         .sidebar-link.active {
@@ -81,6 +64,7 @@
 
         {{-- Navigation --}}
         <nav style="flex:1;">
+
             <p style="font-size:11px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; padding:0 8px;">
                 Menu
             </p>
@@ -109,16 +93,29 @@
                 Account
             </p>
 
-            <div style="padding:8px 16px; margin-bottom:4px;">
+            {{-- ✅ Lien Profile --}}
+            <a href="{{ route('profile.index') }}"
+               class="sidebar-link {{ request()->routeIs('profile.index') ? 'active' : '' }}">
+                <span style="font-size:18px;">👤</span>
+                Profile
+            </a>
+
+            {{-- Avatar user --}}
+            <div style="padding:8px 16px; margin-top:8px;">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="
-                        width:34px; height:34px; border-radius:50%;
-                        background:linear-gradient(135deg, #3b82f6, #6C63FF);
-                        color:white; display:flex; align-items:center;
-                        justify-content:center; font-size:14px; font-weight:600;
-                    ">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
+
+                    @if(auth()->user()->avatar)
+                        <img src="{{ asset('avatars/' . auth()->user()->avatar) }}"
+                            style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid #e5e7eb;">
+                    @else
+                        <div style="
+                            width:34px; height:34px; border-radius:50%;
+                            background:linear-gradient(135deg, #3b82f6, #6C63FF);
+                            color:white; display:flex; align-items:center;
+                            justify-content:center; font-size:14px; font-weight:600;
+                        ">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @endif
+
                     <div>
                         <p style="font-size:13px; font-weight:600; color:#1a1a2e; margin:0;">
                             {{ auth()->user()->name }}
@@ -133,7 +130,7 @@
         </nav>
 
         {{-- Logout --}}
-        <form action="{{ route('logout') }}" method="POST">
+        <form action="{{ route('logout') }}" method="POST" style="margin-top:15px;">
             @csrf
             <button type="submit" style="
                 width:100%; padding:11px;
@@ -156,7 +153,7 @@
     {{-- ── CONTENU PRINCIPAL ────────────────────── --}}
     <div style="margin-left:240px; flex:1; padding:30px;">
 
-        {{-- Messages succès --}}
+        {{-- Message succès --}}
         @if(session('success'))
             <div style="
                 background:#d1fae5; color:#059669;
@@ -169,7 +166,7 @@
             </div>
         @endif
 
-        {{-- Messages erreur --}}
+        {{-- Message erreur --}}
         @if(session('error'))
             <div style="
                 background:#fee2e2; color:#dc2626;
@@ -182,7 +179,7 @@
             </div>
         @endif
 
-        {{-- Contenu --}}
+        {{-- Contenu de la page --}}
         @yield('content')
 
     </div>
@@ -190,7 +187,7 @@
 </div>
 
 @else
-{{-- ─── LAYOUT SANS SIDEBAR (auth pages) ───────── --}}
+{{-- ─── LAYOUT SANS SIDEBAR (login/register) ────── --}}
 @yield('content')
 @endauth
 
